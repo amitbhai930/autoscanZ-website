@@ -1,8 +1,19 @@
+// ===================== CONFIG =====================
 const BACKEND_URL = "https://autoscanz-backend.onrender.com";
 
+// Utility: sleep for ms
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// ===================== MAIN =====================
 document.addEventListener("DOMContentLoaded", () => {
 
-  /* ===================== SCAN PAGE LOGIC ===================== */
+  console.log("AutoScanZ JS loaded");
+
+  /* =====================================================
+     SCAN PAGE LOGIC
+  ===================================================== */
   const form = document.getElementById("scanForm");
 
   if (form) {
@@ -18,55 +29,69 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      status.innerText = "Starting scan… (backend may wake up)";
+      status.innerText = "Waking backend… please wait (first time may take ~30s)";
 
+      const payload = {
+        target: target
+      };
+
+      let response;
+
+      // -------- First attempt (wake backend) --------
       try {
-        async function postScan(target) {
-  return fetch(`${BACKEND_URL}/api/scans`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ target })
-  });
-}
-
-let response;
-
-try {
-  response = await postScan(target);
-} catch {
-  status.innerText = "Waking backend… retrying scan";
-  await new Promise(r => setTimeout(r, 15000)); // wait 15s
-  response = await postScan(target);
-}
-const data = await response.json();
-
+        response = await fetch(`${BACKEND_URL}/api/scans`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({ target })
+          body: JSON.stringify(payload)
         });
+      } catch (err) {
+        console.warn("First attempt failed, retrying after delay...");
+      }
 
-        const data = await response.json();
+      // -------- Retry after wait (actual scan) --------
+      if (!response || !response.ok) {
+        status.innerText = "Backend waking up… retrying scan";
+        await sleep(20000); // wait 20 seconds
 
-        if (!response.ok) {
-          status.innerText = data.error || "Scan failed.";
+        try {
+          response = await fetch(`${BACKEND_URL}/api/scans`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+          });
+        } catch (err) {
+          status.innerText =
+            "Backend still not reachable. Please wait 1 minute and try again.";
           return;
         }
-
-        status.innerText = "Scan completed. Redirecting to results…";
-        window.location.href = `results.html?scan_id=${data.scan_id}`;
-
-      } catch (error) {
-        status.innerText =
-          "Backend not reachable. Wait 30 seconds and try again.";
       }
+
+      let data;
+      try {
+        data = await response.json();
+      } catch {
+        status.innerText = "Invalid response from backend.";
+        return;
+      }
+
+      if (!response.ok || !data.scan_id) {
+        status.innerText = data.error || "Scan failed.";
+        return;
+      }
+
+      status.innerText = "Scan completed. Redirecting to results…";
+
+      window.location.href = `results.html?scan_id=${data.scan_id}`;
     });
   }
 
-  /* ===================== RESULTS PAGE LOGIC ===================== */
+  /* =====================================================
+     RESULTS PAGE LOGIC
+  ===================================================== */
   const resultsDiv = document.getElementById("results");
 
   if (resultsDiv) {
@@ -78,26 +103,44 @@ const data = await response.json();
       return;
     }
 
-    resultsDiv.innerText = "Loading scan results…";
+    resultsDiv.innerText = "Loading scan results… (backend may wake up)";
 
-    fetch(`${BACKEND_URL}/api/scans/${scanId}`)
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.error) {
-          resultsDiv.innerText = data.error;
-          return;
+    async function loadResults() {
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/scans/${scanId}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to fetch results");
         }
 
         resultsDiv.innerHTML = `
           <p><strong>Target:</strong> ${data.target}</p>
           <p><strong>Total Open Ports:</strong> ${data.total_open_ports}</p>
+          <h4>Open Ports</h4>
           <pre>${JSON.stringify(data.open_ports, null, 2)}</pre>
         `;
-      })
-      .catch(() => {
-        resultsDiv.innerText =
-          "Error connecting to backend. Try refreshing.";
-      });
+      } catch (err) {
+        console.warn("Retrying results fetch…");
+        await sleep(15000);
+        try {
+          const response = await fetch(`${BACKEND_URL}/api/scans/${scanId}`);
+          const data = await response.json();
+
+          resultsDiv.innerHTML = `
+            <p><strong>Target:</strong> ${data.target}</p>
+            <p><strong>Total Open Ports:</strong> ${data.total_open_ports}</p>
+            <h4>Open Ports</h4>
+            <pre>${JSON.stringify(data.open_ports, null, 2)}</pre>
+          `;
+        } catch {
+          resultsDiv.innerText =
+            "Unable to load results. Please refresh the page.";
+        }
+      }
+    }
+
+    loadResults();
   }
 
 });
