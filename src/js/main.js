@@ -1,3 +1,4 @@
+const BACKEND_URL = "https://autoscanz-backend.onrender.com";
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("scanForm");
 
