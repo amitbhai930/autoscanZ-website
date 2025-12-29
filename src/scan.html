@@ -1,33 +1,36 @@
-<section class="cta">
-  <div class="container">
-    <h2>Start a Security Scan</h2>
-    <p>Enter a domain or IP address to begin scanning.</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Scan | AutoScanZ</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
 <header class="navbar">
   <div class="container">
     <div class="logo">AutoScanZ</div>
     <nav>
       <ul class="nav-links">
         <li><a href="index.html">Home</a></li>
-        <li><a href="scan.html">Scan</a></li>
+        <li><a href="scan.html" class="active">Scan</a></li>
         <li><a href="history.html">History</a></li>
       </ul>
     </nav>
   </div>
 </header>
-    <form id="scanForm">
-      <input
-        type="text"
-        id="target"
-        placeholder="example.com"
-        required
-        style="padding:10px; width:280px;"
-      />
-      <br /><br />
-      <button class="btn-primary" type="submit">Start Scan</button>
-    </form>
 
-    <p id="status" style="margin-top:15px;"></p>
+<section class="section">
+  <div class="container scan-form">
+    <h2>Run a Security Scan</h2>
+    <input type="text" id="target" placeholder="example.com" required />
+    <br />
+    <button class="btn btn-primary" id="scanBtn">Start Scan</button>
+    <p id="status"></p>
   </div>
 </section>
 
 <script src="js/main.js"></script>
+
+</body>
+</html>
