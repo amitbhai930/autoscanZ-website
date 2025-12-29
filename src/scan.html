@@ -3,10 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <title>Scan | AutoScanZ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 
+<!-- ================= NAVBAR ================= -->
 <header class="navbar">
   <div class="container">
     <div class="logo">AutoScanZ</div>
@@ -17,44 +19,53 @@
         <li><a href="history.html">History</a></li>
       </ul>
     </nav>
+    <!-- Theme toggle (optional, safe if unused) -->
+    <button id="themeToggle" style="margin-left:10px;">☀️</button>
   </div>
 </header>
 
-<section class="section">
- <div class="container scan-form">
-  <h2>Run a Security Scan</h2>
-
-  <input type="text" id="target" placeholder="example.com" required />
-  <br />
-
-  <button class="btn btn-primary" id="scanBtn">
-    Start Scan
-  </button>
-
-  <div id="scanLoading" style="display:none;">
-    <div class="spinner"></div>
-    <div class="loading-text">Scanning in progress…</div>
-  </div>
-
-  <p id="status"></p>
-</div>
-
-</section>
+<!-- ================= SCAN SECTION ================= -->
 <section class="section">
   <div class="container scan-form">
     <h2>Run Security Scan</h2>
-    <p class="muted">Enter a domain or IP address</p>
+    <p>Enter a domain or IP address to start scanning.</p>
 
-    <input type="text" id="target" placeholder="example.com" />
-    <br />
-    <button class="btn" id="scanBtn">Scan Now</button>
+    <!-- REQUIRED INPUT -->
+    <input
+      type="text"
+      id="target"
+      placeholder="example.com or 8.8.8.8"
+      autocomplete="off"
+    />
 
+    <!-- REQUIRED BUTTON -->
+    <br /><br />
+    <button id="scanBtn" class="btn-primary">
+      Start Scan
+    </button>
+
+    <!-- STATUS MESSAGE -->
     <p id="status"></p>
-    <div id="spinner" class="spinner" style="display:none;"></div>
 
+    <!-- LOADING SPINNER -->
+    <div
+      id="spinner"
+      class="spinner"
+      style="display:none;"
+    ></div>
   </div>
 </section>
 
+<!-- ================= FOOTER ================= -->
+<footer class="footer">
+  <div class="container">
+    <p style="text-align:center; color:#64748b;">
+      © 2025 AutoScanZ. Scan only systems you own or have permission to test.
+    </p>
+  </div>
+</footer>
+
+<!-- ================= JS ================= -->
 <script src="js/main.js"></script>
 
 </body>
