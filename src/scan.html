@@ -21,13 +21,24 @@
 </header>
 
 <section class="section">
-  <div class="container scan-form">
-    <h2>Run a Security Scan</h2>
-    <input type="text" id="target" placeholder="example.com" required />
-    <br />
-    <button class="btn btn-primary" id="scanBtn">Start Scan</button>
-    <p id="status"></p>
+ <div class="container scan-form">
+  <h2>Run a Security Scan</h2>
+
+  <input type="text" id="target" placeholder="example.com" required />
+  <br />
+
+  <button class="btn btn-primary" id="scanBtn">
+    Start Scan
+  </button>
+
+  <div id="scanLoading" style="display:none;">
+    <div class="spinner"></div>
+    <div class="loading-text">Scanning in progress…</div>
   </div>
+
+  <p id="status"></p>
+</div>
+
 </section>
 
 <script src="js/main.js"></script>
