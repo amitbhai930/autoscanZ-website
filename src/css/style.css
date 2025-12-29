@@ -205,3 +205,23 @@ footer {
   color: var(--text-muted);
   font-size: 14px;
 }
+/* ================= THEME TOGGLE ================= */
+.theme-toggle {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* ================= LIGHT MODE ================= */
+body.light {
+  --bg-main: #f8fafc;
+  --bg-card: #ffffff;
+  --border: #e5e7eb;
+  --primary: #2563eb;
+  --primary-dark: #1e40af;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+}
