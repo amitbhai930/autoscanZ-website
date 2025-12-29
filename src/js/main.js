@@ -21,7 +21,26 @@ document.addEventListener("DOMContentLoaded", () => {
       status.innerText = "Starting scan… (backend may wake up)";
 
       try {
-        const response = await fetch(`${BACKEND_URL}/api/scans`, {
+        async function postScan(target) {
+  return fetch(`${BACKEND_URL}/api/scans`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ target })
+  });
+}
+
+let response;
+
+try {
+  response = await postScan(target);
+} catch {
+  status.innerText = "Waking backend… retrying scan";
+  await new Promise(r => setTimeout(r, 15000)); // wait 15s
+  response = await postScan(target);
+}
+
           method: "POST",
           headers: {
             "Content-Type": "application/json"
