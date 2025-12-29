@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>AutoScanZ | Security Scanner</title>
+  <title>AutoScanZ | Website Security Scanner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="css/style.css" />
-  <button id="themeToggle">☀️</button>
-
 </head>
 <body>
 
+<!-- ================= NAVBAR ================= -->
 <header class="navbar">
   <div class="container">
     <div class="logo">AutoScanZ</div>
@@ -19,47 +19,134 @@
         <li><a href="history.html">History</a></li>
       </ul>
     </nav>
-    
-
   </div>
 </header>
+
+<!-- ================= HERO ================= -->
 <section class="hero">
   <div class="container">
     <h1>Website Security Scanner</h1>
-    <p>Scan a domain or IP address to detect open network ports.</p>
-    <a href="scan.html" class="btn">Start Free Scan</a>
+    <p>
+      AutoScanZ helps you identify open network ports on your website or server.
+      Scan domains or IP addresses safely and view results instantly.
+    </p>
+    <a href="scan.html" class="btn-primary">Start Free Scan</a>
   </div>
 </section>
 
-<section class="hero">
-  <div class="container">
-    <h1>Automated Security Scanning</h1>
-    <p>Scan your domain or IP for open ports and see results instantly.</p>
-    <a href="scan.html" class="btn btn-primary">Start a Scan</a>
-  </div>
-</section>
-
+<!-- ================= PLATFORM OVERVIEW ================= -->
 <section class="section">
+  <div class="container grid-3">
+    <div class="card">
+      <h3>Fast Scanning</h3>
+      <p>
+        Scan common network ports in seconds using a lightweight
+        and efficient scanning engine.
+      </p>
+    </div>
+
+    <div class="card">
+      <h3>Secure Storage</h3>
+      <p>
+        All scan results are securely stored in a database so you
+        can review them later.
+      </p>
+    </div>
+
+    <div class="card">
+      <h3>Simple Dashboard</h3>
+      <p>
+        View scan results and history through a clean and
+        easy-to-use interface.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= HOW IT WORKS ================= -->
+<section class="section dark-section">
   <div class="container">
-    <div class="result-grid">
-      <div class="result-card">
-        <h3>Fast & Simple</h3>
-        <p>Scan in seconds</p>
+    <h2 class="center">How AutoScanZ Works</h2>
+
+    <div class="grid-3">
+      <div class="step">
+        <span>1</span>
+        <h4>Enter Target</h4>
+        <p>Provide a domain name or IP address.</p>
       </div>
-      <div class="result-card">
-        <h3>Cloud Powered</h3>
-        <p>Hosted on Render + MongoDB</p>
+
+      <div class="step">
+        <span>2</span>
+        <h4>Run Scan</h4>
+        <p>The scanner checks common open ports.</p>
       </div>
-      <div class="result-card">
-        <h3>Modern UI</h3>
-        <p>Clean and responsive</p>
+
+      <div class="step">
+        <span>3</span>
+        <h4>View Results</h4>
+        <p>Review detected open ports and history.</p>
       </div>
     </div>
   </div>
 </section>
 
-<footer>
-  &copy; 2025 AutoScanZ. All rights reserved.
+<!-- ================= DISCLAIMER ================= -->
+<section class="section">
+  <div class="container">
+    <div class="card warning">
+      <h3>Legal Disclaimer</h3>
+      <p>
+        AutoScanZ is intended for educational and authorized testing purposes only.
+        Scan only systems you own or have permission to test.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer class="footer">
+  <div class="container footer-grid">
+
+    <div>
+      <h4>AutoScanZ</h4>
+      <p>
+        Lightweight web security scanning platform designed
+        for learning and testing purposes.
+      </p>
+    </div>
+
+    <div>
+      <h4>Platform</h4>
+      <ul>
+        <li><a href="scan.html">Start Scan</a></li>
+        <li><a href="history.html">Scan History</a></li>
+        <li><a href="results.html">Results</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <h4>Resources</h4>
+      <ul>
+        <li><a href="#">Documentation</a></li>
+        <li><a href="#">API Overview</a></li>
+        <li><a href="#">Security Guide</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <h4>Legal</h4>
+      <ul>
+        <li><a href="#">Terms of Use</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Disclaimer</a></li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="footer-bottom">
+    © 2025 AutoScanZ. All rights reserved.
+  </div>
 </footer>
 
 </body>
