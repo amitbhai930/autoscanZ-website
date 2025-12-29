@@ -1,39 +1,47 @@
 const BACKEND_URL = "https://autoscanz-backend.onrender.com";
+
 document.addEventListener("DOMContentLoaded", () => {
-    const form = document.getElementById("scanForm");
+  const form = document.getElementById("scanForm");
 
-    if (!form) return;
+  if (!form) return;
 
-    form.addEventListener("submit", async (e) => {
-        e.preventDefault();
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-        const target = document.getElementById("target").value;
-        const status = document.getElementById("status");
+    const targetInput = document.getElementById("target");
+    const status = document.getElementById("status");
+    const target = targetInput.value.trim();
 
-        status.innerText = "Starting scan...";
+    if (!target) {
+      status.innerText = "Please enter a valid target.";
+      return;
+    }
 
-        try {
-            const response = await fetch(
-                "https://YOUR-BACKEND-URL.onrender.com/api/scans",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ target })
-                }
-            );
+    status.innerText = "Starting scan… (backend may wake up)";
 
-            const data = await response.json();
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/scans`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ target })
+      });
 
-            if (!response.ok) {
-                status.innerText = data.error || "Scan failed";
-                return;
-            }
+      const data = await response.json();
 
-            status.innerText = `Scan started. Scan ID: ${data.scan_id}`;
-        } catch (err) {
-            status.innerText = "Backend not reachable";
-        }
-    });
+      if (!response.ok) {
+        status.innerText = data.error || "Scan failed.";
+        return;
+      }
+
+      status.innerText = "Scan completed. Redirecting to results…";
+
+      window.location.href = `results.html?scan_id=${data.scan_id}`;
+
+    } catch (error) {
+      status.innerText =
+        "Backend not reachable. Wait 30 seconds and try again.";
+    }
+  });
 });
