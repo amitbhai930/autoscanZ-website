@@ -1,5 +1,5 @@
 // ================= CONFIG =================
-const BACKEND_URL = "https://autoscanz-backend.onrender.com";
+const BACKEND_URL = "https://autoscanz-backend-1.onrender.com";
 
 // Sleep helper (Render cold start)
 function sleep(ms) {
