@@ -7,13 +7,27 @@ function sleep(ms) {
 }
 
 // Domain / IP validation
-function isValidTarget(value) {
-  const domainRegex = /^(?!:\/\/)([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/;
-  const ipRegex =
-    /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(?!$)|$){4}$/;
-  return domainRegex.test(value) || ipRegex.test(value);
+function normalizeTarget(input) {
+  let value = input.trim();
+
+  // Remove protocol if present
+  value = value.replace(/^https?:\/\//i, "");
+
+  // Remove path, query, fragment
+  value = value.split("/")[0];
+
+  return value;
 }
 
+function isValidTarget(value) {
+  const domainRegex =
+    /^([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/;
+
+  const ipRegex =
+    /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/;
+
+  return domainRegex.test(value) || ipRegex.test(value);
+}
 // ================= MAIN =================
 document.addEventListener("DOMContentLoaded", function () {
 
