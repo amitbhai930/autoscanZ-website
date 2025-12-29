@@ -31,52 +31,35 @@ document.addEventListener("DOMContentLoaded", () => {
 
       status.innerText = "Waking backend… please wait (first time may take ~30s)";
 
-      const payload = {
-        target: target
-      };
-
+      const payload = { target };
       let response;
 
-      // -------- First attempt (wake backend) --------
       try {
         response = await fetch(`${BACKEND_URL}/api/scans`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
         });
-      } catch (err) {
-        console.warn("First attempt failed, retrying after delay...");
-      }
+      } catch {}
 
-      // -------- Retry after wait (actual scan) --------
       if (!response || !response.ok) {
         status.innerText = "Backend waking up… retrying scan";
-        await sleep(20000); // wait 20 seconds
+        await sleep(20000);
 
         try {
           response = await fetch(`${BACKEND_URL}/api/scans`, {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
           });
-        } catch (err) {
+        } catch {
           status.innerText =
             "Backend still not reachable. Please wait 1 minute and try again.";
           return;
         }
       }
 
-      let data;
-      try {
-        data = await response.json();
-      } catch {
-        status.innerText = "Invalid response from backend.";
-        return;
-      }
+      const data = await response.json();
 
       if (!response.ok || !data.scan_id) {
         status.innerText = data.error || "Scan failed.";
@@ -84,7 +67,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       status.innerText = "Scan completed. Redirecting to results…";
-
       window.location.href = `results.html?scan_id=${data.scan_id}`;
     });
   }
@@ -103,44 +85,64 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    resultsDiv.innerText = "Loading scan results… (backend may wake up)";
+    resultsDiv.innerText = "Loading scan results…";
 
-    async function loadResults() {
-      try {
-        const response = await fetch(`${BACKEND_URL}/api/scans/${scanId}`);
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || "Failed to fetch results");
-        }
-
+    fetch(`${BACKEND_URL}/api/scans/${scanId}`)
+      .then(res => res.json())
+      .then(data => {
         resultsDiv.innerHTML = `
           <p><strong>Target:</strong> ${data.target}</p>
           <p><strong>Total Open Ports:</strong> ${data.total_open_ports}</p>
-          <h4>Open Ports</h4>
           <pre>${JSON.stringify(data.open_ports, null, 2)}</pre>
         `;
-      } catch (err) {
-        console.warn("Retrying results fetch…");
-        await sleep(15000);
-        try {
-          const response = await fetch(`${BACKEND_URL}/api/scans/${scanId}`);
-          const data = await response.json();
+      })
+      .catch(() => {
+        resultsDiv.innerText = "Failed to load scan results.";
+      });
+  }
 
-          resultsDiv.innerHTML = `
-            <p><strong>Target:</strong> ${data.target}</p>
-            <p><strong>Total Open Ports:</strong> ${data.total_open_ports}</p>
-            <h4>Open Ports</h4>
-            <pre>${JSON.stringify(data.open_ports, null, 2)}</pre>
-          `;
-        } catch {
-          resultsDiv.innerText =
-            "Unable to load results. Please refresh the page.";
+  /* =====================================================
+     HISTORY PAGE LOGIC
+  ===================================================== */
+  const historyDiv = document.getElementById("history");
+
+  if (historyDiv) {
+    historyDiv.innerText = "Loading scan history…";
+
+    fetch(`${BACKEND_URL}/api/scans`)
+      .then(res => res.json())
+      .then(data => {
+        if (!Array.isArray(data) || data.length === 0) {
+          historyDiv.innerText = "No scans found.";
+          return;
         }
-      }
-    }
 
-    loadResults();
+        let html = `
+          <table border="1" cellpadding="8">
+            <tr>
+              <th>Target</th>
+              <th>Open Ports</th>
+              <th>Date</th>
+            </tr>
+        `;
+
+        data.forEach(scan => {
+          html += `
+            <tr>
+              <td>${scan.target}</td>
+              <td>${scan.total_open_ports}</td>
+              <td>${new Date(scan.created_at).toLocaleString()}</td>
+            </tr>
+          `;
+        });
+
+        html += "</table>";
+        historyDiv.innerHTML = html;
+      })
+      .catch(() => {
+        historyDiv.innerText = "Failed to load scan history.";
+      });
   }
 
 });
+
