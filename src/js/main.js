@@ -1,66 +1,51 @@
-// ===================== CONFIG =====================
+// ================= CONFIG =================
 const BACKEND_URL = "https://autoscanz-backend.onrender.com";
 
-// Utility: sleep
+// Simple delay helper
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// ===================== MAIN =====================
-document.addEventListener("DOMContentLoaded", () => {
+// ================= MAIN =================
+document.addEventListener("DOMContentLoaded", function () {
 
-  /* =====================================================
-     THEME (DARK / LIGHT MODE)
-  ===================================================== */
-  const themeToggle = document.getElementById("themeToggle");
-  const savedTheme = localStorage.getItem("theme");
+  console.log("AutoScanZ main.js loaded");
 
-  if (savedTheme === "light") {
-    document.body.classList.add("light");
-    if (themeToggle) themeToggle.textContent = "🌙";
-  }
-
-  if (themeToggle) {
-    themeToggle.addEventListener("click", () => {
-      document.body.classList.toggle("light");
-      const isLight = document.body.classList.contains("light");
-      themeToggle.textContent = isLight ? "🌙" : "☀️";
-      localStorage.setItem("theme", isLight ? "light" : "dark");
-    });
-  }
-
-  /* =====================================================
-     SCAN PAGE LOGIC
-  ===================================================== */
+  // =====================================================
+  // SCAN PAGE
+  // =====================================================
   const scanBtn = document.getElementById("scanBtn");
-  const status = document.getElementById("status");
+  const statusEl = document.getElementById("status");
 
-  if (scanBtn) {
-    scanBtn.addEventListener("click", async () => {
+  if (scanBtn && statusEl) {
+    scanBtn.addEventListener("click", async function () {
+
       const targetInput = document.getElementById("target");
       const target = targetInput.value.trim();
 
       if (!target) {
-        status.innerText = "Please enter a valid domain or IP.";
+        statusEl.innerText = "Please enter a domain or IP.";
         return;
       }
 
-      status.innerText = "Waking backend… please wait";
+      statusEl.innerText = "Starting scan… backend may take 20–30 seconds.";
 
       let response;
 
-      // First attempt (wake backend)
+      // First attempt
       try {
         response = await fetch(`${BACKEND_URL}/api/scans`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ target })
         });
-      } catch {}
+      } catch (e) {
+        console.warn("First request failed, retrying...");
+      }
 
-      // Retry after delay (Render free tier)
+      // Retry once after delay (Render cold start)
       if (!response || !response.ok) {
-        status.innerText = "Backend waking up… retrying";
+        statusEl.innerText = "Waking backend… retrying scan";
         await sleep(20000);
 
         try {
@@ -69,28 +54,33 @@ document.addEventListener("DOMContentLoaded", () => {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ target })
           });
-        } catch {
-          status.innerText =
-            "Backend not reachable. Please try again later.";
+        } catch (e) {
+          statusEl.innerText = "Backend not reachable. Try again later.";
           return;
         }
       }
 
-      const data = await response.json();
-
-      if (!data.scan_id) {
-        status.innerText = data.error || "Scan failed.";
+      let data;
+      try {
+        data = await response.json();
+      } catch {
+        statusEl.innerText = "Invalid backend response.";
         return;
       }
 
-      status.innerText = "Scan completed. Redirecting…";
+      if (!data.scan_id) {
+        statusEl.innerText = data.error || "Scan failed.";
+        return;
+      }
+
+      statusEl.innerText = "Scan complete. Redirecting…";
       window.location.href = `results.html?scan_id=${data.scan_id}`;
     });
   }
 
-  /* =====================================================
-     RESULTS PAGE LOGIC (VISUAL DASHBOARD)
-  ===================================================== */
+  // =====================================================
+  // RESULTS PAGE
+  // =====================================================
   const resultsDiv = document.getElementById("results");
 
   if (resultsDiv) {
@@ -98,64 +88,81 @@ document.addEventListener("DOMContentLoaded", () => {
     const scanId = params.get("scan_id");
 
     if (!scanId) {
-      resultsDiv.innerHTML = "<p>No scan ID provided.</p>";
+      resultsDiv.innerText = "No scan ID provided.";
       return;
     }
 
-    resultsDiv.innerHTML = "<p>Loading scan results…</p>";
+    resultsDiv.innerText = "Loading scan results…";
 
     fetch(`${BACKEND_URL}/api/scans/${scanId}`)
       .then(res => res.json())
       .then(data => {
         if (!data || !data.target) {
-          resultsDiv.innerHTML = "<p>Invalid scan data.</p>";
+          resultsDiv.innerText = "Scan not found.";
           return;
         }
 
-        resultsDiv.innerHTML = `
-          <div class="result-grid">
-            <div class="result-box">
-              <h3>Target</h3>
-              <p>${data.target}</p>
-            </div>
-
-            <div class="result-box">
-              <h3>Open Ports</h3>
-              <p>${data.total_open_ports}</p>
-            </div>
-          </div>
-
-          <div class="card">
-            <h3>Port Status</h3>
-            ${
-              data.open_ports.length === 0
-                ? "<p>No open ports detected.</p>"
-                : data.open_ports.map(port => `
-                    <div class="port-row">
-                      <span>Port ${port.port} (${port.service})</span>
-                      <span class="badge open">OPEN</span>
-                    </div>
-                  `).join("")
-            }
-          </div>
+        let html = `
+          <h3>Target: ${data.target}</h3>
+          <p>Total Open Ports: ${data.total_open_ports}</p>
+          <hr />
         `;
+
+        if (!data.open_ports || data.open_ports.length === 0) {
+          html += "<p>No open ports detected.</p>";
+        } else {
+          data.open_ports.forEach(p => {
+            html += `<p>Port ${p.port} (${p.service}) — OPEN</p>`;
+          });
+        }
+
+        resultsDiv.innerHTML = html;
       })
       .catch(() => {
-        resultsDiv.innerHTML =
-          "<p>Unable to load scan results. Please refresh.</p>";
+        resultsDiv.innerText = "Failed to load results.";
       });
   }
 
-  /* =====================================================
-     HISTORY PAGE LOGIC (CLICKABLE TABLE)
-  ===================================================== */
+  // =====================================================
+  // HISTORY PAGE
+  // =====================================================
   const historyDiv = document.getElementById("history");
 
   if (historyDiv) {
-    historyDiv.innerHTML = "<p>Loading scan history…</p>";
+    historyDiv.innerText = "Loading scan history…";
 
     fetch(`${BACKEND_URL}/api/scans`)
       .then(res => res.json())
       .then(data => {
         if (!Array.isArray(data) || data.length === 0) {
-          historyDiv.innerHTML = "<p>No scans found.</p>";
+          historyDiv.innerText = "No scans found.";
+          return;
+        }
+
+        let html = "<ul>";
+
+        data.forEach(scan => {
+          html += `
+            <li style="cursor:pointer; margin-bottom:8px;"
+                data-id="${scan.scan_id}">
+              ${scan.target} — ${scan.total_open_ports} ports
+            </li>
+          `;
+        });
+
+        html += "</ul>";
+        historyDiv.innerHTML = html;
+
+        historyDiv.querySelectorAll("li").forEach(item => {
+          item.addEventListener("click", function () {
+            const id = this.getAttribute("data-id");
+            window.location.href = `results.html?scan_id=${id}`;
+          });
+        });
+      })
+      .catch(() => {
+        historyDiv.innerText = "Failed to load scan history.";
+      });
+  }
+
+});
