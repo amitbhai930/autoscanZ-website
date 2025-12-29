@@ -1,7 +1,7 @@
 // ================= CONFIG =================
 const BACKEND_URL = "https://autoscanz-backend.onrender.com";
 
-// Simple delay helper
+// Delay helper (for Render cold start)
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -9,10 +9,10 @@ function sleep(ms) {
 // ================= MAIN =================
 document.addEventListener("DOMContentLoaded", function () {
 
-  console.log("AutoScanZ main.js loaded");
+  console.log("AutoScanZ main.js loaded successfully");
 
   // =====================================================
-  // SCAN PAGE
+  // SCAN PAGE LOGIC
   // =====================================================
   const scanBtn = document.getElementById("scanBtn");
   const statusEl = document.getElementById("status");
@@ -24,28 +24,29 @@ document.addEventListener("DOMContentLoaded", function () {
       const target = targetInput.value.trim();
 
       if (!target) {
-        statusEl.innerText = "Please enter a domain or IP.";
+        statusEl.innerText = "Please enter a domain or IP address.";
         return;
       }
 
-      statusEl.innerText = "Starting scan… backend may take 20–30 seconds.";
+      statusEl.innerText =
+        "Starting scan… backend may take up to 30 seconds (free tier).";
 
-      let response;
+      let response = null;
 
-      // First attempt
+      // ---- First request (wake backend) ----
       try {
         response = await fetch(`${BACKEND_URL}/api/scans`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ target })
         });
-      } catch (e) {
-        console.warn("First request failed, retrying...");
+      } catch (err) {
+        console.warn("Initial request failed, retrying...");
       }
 
-      // Retry once after delay (Render cold start)
+      // ---- Retry once after delay ----
       if (!response || !response.ok) {
-        statusEl.innerText = "Waking backend… retrying scan";
+        statusEl.innerText = "Backend waking up… retrying scan.";
         await sleep(20000);
 
         try {
@@ -54,8 +55,9 @@ document.addEventListener("DOMContentLoaded", function () {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ target })
           });
-        } catch (e) {
-          statusEl.innerText = "Backend not reachable. Try again later.";
+        } catch (err) {
+          statusEl.innerText =
+            "Backend not reachable. Please try again later.";
           return;
         }
       }
@@ -64,7 +66,7 @@ document.addEventListener("DOMContentLoaded", function () {
       try {
         data = await response.json();
       } catch {
-        statusEl.innerText = "Invalid backend response.";
+        statusEl.innerText = "Invalid response from backend.";
         return;
       }
 
@@ -73,13 +75,13 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      statusEl.innerText = "Scan complete. Redirecting…";
+      statusEl.innerText = "Scan completed. Redirecting to results…";
       window.location.href = `results.html?scan_id=${data.scan_id}`;
     });
   }
 
   // =====================================================
-  // RESULTS PAGE
+  // RESULTS PAGE LOGIC
   // =====================================================
   const resultsDiv = document.getElementById("results");
 
@@ -104,27 +106,28 @@ document.addEventListener("DOMContentLoaded", function () {
 
         let html = `
           <h3>Target: ${data.target}</h3>
-          <p>Total Open Ports: ${data.total_open_ports}</p>
+          <p><strong>Total Open Ports:</strong> ${data.total_open_ports}</p>
           <hr />
         `;
 
         if (!data.open_ports || data.open_ports.length === 0) {
           html += "<p>No open ports detected.</p>";
         } else {
-          data.open_ports.forEach(p => {
-            html += `<p>Port ${p.port} (${p.service}) — OPEN</p>`;
+          data.open_ports.forEach(port => {
+            html += `<p>Port ${port.port} (${port.service}) — OPEN</p>`;
           });
         }
 
         resultsDiv.innerHTML = html;
       })
       .catch(() => {
-        resultsDiv.innerText = "Failed to load results.";
+        resultsDiv.innerText =
+          "Failed to load scan results. Please refresh.";
       });
   }
 
   // =====================================================
-  // HISTORY PAGE
+  // HISTORY PAGE LOGIC
   // =====================================================
   const historyDiv = document.getElementById("history");
 
@@ -145,7 +148,7 @@ document.addEventListener("DOMContentLoaded", function () {
           html += `
             <li style="cursor:pointer; margin-bottom:8px;"
                 data-id="${scan.scan_id}">
-              ${scan.target} — ${scan.total_open_ports} ports
+              ${scan.target} — ${scan.total_open_ports} open ports
             </li>
           `;
         });
