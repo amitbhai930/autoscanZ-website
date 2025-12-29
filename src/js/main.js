@@ -40,6 +40,7 @@ try {
   await new Promise(r => setTimeout(r, 15000)); // wait 15s
   response = await postScan(target);
 }
+const data = await response.json();
 
           method: "POST",
           headers: {
