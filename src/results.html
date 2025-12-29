@@ -1,22 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Results | AutoScanZ</title>
-    <link rel="stylesheet" href="css/style.css" />
+  <meta charset="UTF-8" />
+  <title>Results | AutoScanZ</title>
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-<section class="container">
-  <h2>Scan Results</h2>
-
-  <div id="results" class="card">
-    Loading scan results…
-  </div>
-</section>
-
-
-<script src="js/main.js"></script>
 
 <header class="navbar">
   <div class="container">
@@ -31,21 +20,19 @@
   </div>
 </header>
 
-<section class="features">
-    <div class="container">
-        <h2>Scan Results</h2>
-        <p>Results will appear here after the scan completes.</p>
-
-        <div class="feature-card">
-            <p>No scan data available yet.</p>
-        </div>
+<section class="section">
+  <div class="container">
+    <h2>Scan Results</h2>
+    <div id="results">
+      <!-- Filled dynamically by JS -->
     </div>
+  </div>
 </section>
 
-<footer class="footer">
-    <div class="container">
-        <p>&copy; 2025 AutoScanZ</p>
-    </div>
+<script src="js/main.js"></script>
+
+<footer>
+  &copy; 2025 AutoScanZ.
 </footer>
 
 </body>
