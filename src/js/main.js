@@ -64,12 +64,15 @@ document.addEventListener("DOMContentLoaded", function () {
     scanBtn.addEventListener("click", async function () {
 
       const targetInput = document.getElementById("target");
-      const target = targetInput.value.trim();
+     let rawInput = targetInput.value;
 
-      if (!target || !isValidTarget(target)) {
-        statusEl.innerText = "Enter a valid domain or IP address.";
-        return;
-      }
+let target = normalizeTarget(rawInput);
+
+if (!target || !isValidTarget(target)) {
+  statusEl.innerText =
+    "Please enter a valid domain or IP (example.com or 8.8.8.8)";
+  return;
+}
 
       statusEl.innerText =
         "Starting scan… backend may take ~30 seconds (free tier).";
