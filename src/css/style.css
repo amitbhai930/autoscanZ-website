@@ -1,0 +1,160 @@
+/* ================= GLOBAL RESET ================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1.6;
+}
+
+body {
+    background-color: #ffffff;
+    color: #222222;
+}
+
+/* ================= UTILITIES ================= */
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+ul {
+    list-style: none;
+}
+
+/* ================= NAVBAR ================= */
+.navbar {
+    border-bottom: 1px solid #e5e5e5;
+    background-color: #ffffff;
+}
+
+.navbar .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 64px;
+}
+
+.logo {
+    font-size: 1.4rem;
+    font-weight: bold;
+}
+
+.nav-links {
+    display: flex;
+    gap: 24px;
+}
+
+.nav-links a {
+    font-size: 0.95rem;
+    color: #333333;
+}
+
+.nav-links a.active {
+    font-weight: bold;
+}
+
+/* ================= HERO ================= */
+.hero {
+    padding: 80px 0;
+    text-align: center;
+}
+
+.hero h1 {
+    font-size: 2.4rem;
+    margin-bottom: 16px;
+}
+
+.hero p {
+    max-width: 700px;
+    margin: 0 auto 32px;
+    font-size: 1rem;
+}
+
+/* ================= BUTTONS ================= */
+.btn-primary,
+.btn-secondary {
+    display: inline-block;
+    padding: 12px 28px;
+    border: 1px solid #222;
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background-color: #222;
+    color: #fff;
+}
+
+.btn-secondary {
+    background-color: transparent;
+    color: #222;
+}
+
+/* ================= FEATURES ================= */
+.features {
+    padding: 60px 0;
+    background-color: #f9f9f9;
+}
+
+.features h2 {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 24px;
+}
+
+.feature-card {
+    border: 1px solid #e0e0e0;
+    padding: 24px;
+    text-align: center;
+}
+
+/* ================= CTA ================= */
+.cta {
+    padding: 60px 0;
+    text-align: center;
+}
+
+.cta h2 {
+    margin-bottom: 12px;
+}
+
+/* ================= FOOTER ================= */
+.footer {
+    border-top: 1px solid #e5e5e5;
+    padding: 20px 0;
+    text-align: center;
+    font-size: 0.85rem;
+    color: #555;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+    .navbar .container {
+        flex-direction: column;
+        height: auto;
+        padding: 12px 0;
+    }
+
+    .nav-links {
+        margin-top: 10px;
+    }
+
+    .hero h1 {
+        font-size: 2rem;
+    }
+}

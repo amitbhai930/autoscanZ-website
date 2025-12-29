@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: autoscanz
+    env: static
+    staticPublishPath: src
+    buildCommand: ""
