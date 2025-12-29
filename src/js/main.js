@@ -77,7 +77,7 @@ if (!target || !isValidTarget(target)) {
       statusEl.innerText =
         "Starting scan… backend may take ~30 seconds (free tier).";
 
-      if (spinner) spinner.style.display = "block";
+     if (spinner) spinner.style.display = "block";
 
       let response = null;
 
