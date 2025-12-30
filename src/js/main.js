@@ -42,23 +42,43 @@ document.addEventListener("DOMContentLoaded", () => {
       statusEl.innerText = "Starting scan…";
 
       let res;
+      let rawText;
+
       try {
         res = await fetch(`${API_URL}/api/scans`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ target })
         });
+
+        rawText = await res.text();
       } catch (err) {
-        console.error(err);
+        console.error("FETCH ERROR:", err);
         statusEl.innerText = "Backend unreachable.";
         spinner.style.display = "none";
         return;
       }
 
-      const data = await res.json();
+      let data;
+      try {
+        data = JSON.parse(rawText);
+      } catch {
+        console.error("INVALID JSON:", rawText);
+        statusEl.innerText = "Invalid backend response.";
+        spinner.style.display = "none";
+        return;
+      }
+
+      if (!res.ok) {
+        console.error("BACKEND ERROR:", data);
+        statusEl.innerText = data.error || "Scan failed.";
+        spinner.style.display = "none";
+        return;
+      }
+
       if (!data.scan_id) {
-        console.error(data);
-        statusEl.innerText = "Scan failed.";
+        console.error("NO SCAN ID:", data);
+        statusEl.innerText = data.error || "Scan failed.";
         spinner.style.display = "none";
         return;
       }
@@ -71,18 +91,27 @@ document.addEventListener("DOMContentLoaded", () => {
   async function pollScan(id) {
     while (true) {
       await sleep(3000);
-      const res = await fetch(`${API_URL}/api/scans/${id}`);
-      const data = await res.json();
+
+      let res, data;
+      try {
+        res = await fetch(`${API_URL}/api/scans/${id}`);
+        data = await res.json();
+      } catch (err) {
+        console.error("POLL ERROR:", err);
+        statusEl.innerText = "Lost connection to backend.";
+        spinner.style.display = "none";
+        return;
+      }
 
       if (data.error) {
-        console.error(data.error);
-        statusEl.innerText = "Scan error.";
+        console.error("SCAN ERROR:", data.error);
+        statusEl.innerText = data.error;
         spinner.style.display = "none";
         return;
       }
 
       statusEl.innerText =
-        `Scanning… ${data.progress || 0}%`;
+        `Scanning… ${data.progress ?? 0}%`;
 
       if (data.status === "completed") {
         window.location.href =
@@ -115,7 +144,7 @@ document.addEventListener("DOMContentLoaded", () => {
         let html = `<h3>${data.target}</h3>`;
         html += `<p>Status: ${data.status}</p><hr/>`;
 
-        if (!data.open_ports.length) {
+        if (!data.open_ports || data.open_ports.length === 0) {
           html += "<p>No open ports.</p>";
         } else {
           data.open_ports.forEach(p => {
