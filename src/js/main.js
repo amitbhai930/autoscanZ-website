@@ -1,5 +1,5 @@
 // ================= CONFIG =================
-const API_URL = "https://autoscanz-backend-1.onrender.com";
+const API_URL = "https://autoscanz-backend-3.onrender.com";
 
 // Sleep helper
 const sleep = ms => new Promise(r => setTimeout(r, ms));
